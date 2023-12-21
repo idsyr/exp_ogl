@@ -78,13 +78,31 @@ int main(){
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if(!success){glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog); cout<<infoLog<<endl;}
 
+    const char *fragmentShaderSource2 = 
+        "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "void main(){\n"
+        "FragColor = vec4(0.4f, 0.3f, 0.4f, 1.0f);}\0";
+    uint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader2, 1, &fragmentShaderSource2, NULL);
+    glCompileShader(fragmentShader2);
+    glGetShaderiv(fragmentShader2, GL_COMPILE_STATUS, &success);
+    if(!success){glGetShaderInfoLog(fragmentShader2, 512, NULL, infoLog); cout<<infoLog<<endl;}
+
     uint shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);    
     glGetShaderiv(shaderProgram, GL_COMPILE_STATUS, &success);
     if(!success){glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog); cout<<infoLog<<endl;}
-    glUseProgram(shaderProgram);
+    //glUseProgram(shaderProgram);
+    
+    uint shaderProgram2 = glCreateProgram();
+    glAttachShader(shaderProgram2, vertexShader);
+    glAttachShader(shaderProgram2, fragmentShader2);
+    glLinkProgram(shaderProgram2);    
+    glGetShaderiv(shaderProgram2, GL_COMPILE_STATUS, &success);
+    if(!success){glGetShaderInfoLog(shaderProgram2, 512, NULL, infoLog); cout<<infoLog<<endl;}
 	
     while(!glfwWindowShouldClose(window)){
 		processInput(window);
@@ -94,6 +112,8 @@ int main(){
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO1);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        
+        glUseProgram(shaderProgram2);
         glBindVertexArray(VAO2);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         
