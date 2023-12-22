@@ -3,6 +3,8 @@
 #include "shader.h"
 #include <iostream>
 #include <cmath>
+#define STB_IMAGE_IMPLEMENTATION
+#include "ext/stb_image.h"
 using std::cout; using std::endl; using std::sin;
 int success; char infoLog[512];
 
@@ -29,23 +31,43 @@ int main(){
 	glViewport(0,0,800,600);
     
     float vertices[] = {
-        -0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.0f,  0.0f,  1.0f,  0.0f,
-         0.0f,  0.5f,  0.0f,  0.0f,  0.0f,  1.0f
+         0.5f,  0.5f,  0.0f,    1.0f,  0.0f,  0.0f,    1.0f, 1.0f,
+         0.5f, -0.5f,  0.0f,    0.0f,  1.0f,  0.0f,    1.0f, 0.0f,
+        -0.5f, -0.5f,  0.0f,    0.0f,  0.0f,  1.0f,    0.0f, 0.0f,
+        -0.5f,  0.5f,  0.0f,    1.0f,  1.0f,  1.0f,    0.0f, 1.0f
     };
     uint indices[] = {
-        0, 1, 2
+        0, 1, 3,
+        1, 2, 3
     };
 
     uint VAO; glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);
     uint VBO; glGenBuffers(1, &VBO);      glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    //uint EBO; glGenBuffers(1, &EBO);      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+    uint EBO; glGenBuffers(1, &EBO);      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    uint texture; glGenTextures(1, &texture); glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
+    int width, height, nrChannels; string path = "/home/ids/pro/exp/t9.png";
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+    if(data){
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+    cout<<"ERROR: LOAD TEXTURE"<<endl;}
+    //stbi_image_free(data);
 
     Shader shaderProgram("../vshader", "../fshader");
 	
@@ -53,14 +75,15 @@ int main(){
 		processInput(window);
 		glClearColor(0.5f, 0.4f, 0.7f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+        
+        glBindTexture(GL_TEXTURE_2D, texture);
         shaderProgram.use();
         //glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
 
         //glUniform4f(glGetUniformLocation(shaderProgram, "ourColor"), 
         //            0.1f, sin(glfwGetTime()/2.0f+0.5f), 0.3f, 1.0f);
-        //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
