@@ -45,14 +45,18 @@ struct Shader{
         glGetShaderiv(shaderProgram, GL_COMPILE_STATUS, &success);
         if(!success){glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog); 
         cout<<"ERROR: SHADER PROGRAM: "<<infoLog<<endl;}
+
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
     }
-    ~Shader(){
-        //glDeleteShader(vertexShader);
-        //glDeleteShader(fragmentShader);
-    }
-    void use(){
-        glUseProgram(shaderProgram);
-    }
+    ~Shader(){}
+    void use(){glUseProgram(shaderProgram);}
+    void setBool(const std::string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), (int)value);}
+    void setInt(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);}
+    void setFloat(const std::string &name, float value) const{
+    glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);}
 };
 
 
