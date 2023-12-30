@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 #include "shader.h"
 #include <iostream>
 #include <cmath>
@@ -90,7 +93,7 @@ int main(){
     shaderProgram.use();
     shaderProgram.setInt("texture1", 0);
     shaderProgram.setInt("texture2", 1);
-	
+
     while(!glfwWindowShouldClose(window)){
 		processInput(window);
 		glClearColor(0.5f, 0.4f, 0.7f, 1.0f);
@@ -102,6 +105,12 @@ int main(){
         glBindTexture(GL_TEXTURE_2D, texture2);
         //glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(-0.2f, 0.2f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        uint transformLoc = glGetUniformLocation(shaderProgram.shaderProgram, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+         
 
         //glUniform4f(glGetUniformLocation(shaderProgram, "ourColor"), 
         //            0.1f, sin(glfwGetTime()/2.0f+0.5f), 0.3f, 1.0f);

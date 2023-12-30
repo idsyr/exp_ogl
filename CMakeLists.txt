@@ -9,7 +9,9 @@ set(GLFW_BUILD_TESTS 	OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL 	OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(ext/glfw)
+include_directories(ext/glm)
+
+Add_subdirectory(ext/glfw)
 target_link_libraries(${EXN} glfw)
 add_subdirectory(ext/glad)
 target_link_libraries(${EXN} glad)
