@@ -67,7 +67,7 @@ int main(){
     int width, height, nrChannels; string path = "../wall.jpg";
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     if(data){
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {cout<<"ERROR: LOAD TEXTURE1"<<endl;}
     stbi_image_free(data);
@@ -94,6 +94,15 @@ int main(){
     shaderProgram.setInt("texture1", 0);
     shaderProgram.setInt("texture2", 1);
 
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f); 
+
     while(!glfwWindowShouldClose(window)){
 		processInput(window);
 		glClearColor(0.5f, 0.4f, 0.7f, 1.0f);
@@ -105,15 +114,23 @@ int main(){
         glBindTexture(GL_TEXTURE_2D, texture2);
         //glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::translate(trans, glm::vec3(-0.2f, 0.2f, 0.0f));
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        uint transformLoc = glGetUniformLocation(shaderProgram.shaderProgram, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        //glm::mat4 trans = glm::mat4(1.0f);
+        //trans = glm::translate(trans, glm::vec3(-0.2f, 0.2f, 0.0f));
+        //trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        //uint transformLoc = glGetUniformLocation(shaderProgram.shaderProgram, "transform");
+        //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
          
 
         //glUniform4f(glGetUniformLocation(shaderProgram, "ourColor"), 
         //            0.1f, sin(glfwGetTime()/2.0f+0.5f), 0.3f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "model"),
+                           1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "view"),
+                           1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "projection"),
+                           1, GL_FALSE, glm::value_ptr(projection));
+        
+        
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
