@@ -86,6 +86,18 @@ int main(){
     -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
+glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
     uint VAO; glGenVertexArrays(1, &VAO); glBindVertexArray(VAO);
     uint VBO; glGenBuffers(1, &VBO);      glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -107,7 +119,7 @@ int main(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     
-    int width, height, nrChannels; string path = "../ras0.jpg";
+    int width, height, nrChannels; string path = "/home/ids/pro/exp/ras0.jpg";
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     if(data){
          glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -123,7 +135,7 @@ int main(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    path = "../t9.png";
+    path = "/home/ids/pro/exp/t9.png";
     data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     if(data){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -132,7 +144,7 @@ int main(){
     stbi_image_free(data);
 
 
-    Shader shaderProgram("../vshader", "../fshader");
+    Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/fshader");
     shaderProgram.use();
     shaderProgram.setInt("texture1", 0);
     shaderProgram.setInt("texture2", 1);
@@ -140,16 +152,6 @@ int main(){
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window)){
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::rotate(model, (float)glfwGetTime()*glm::radians(-50.0f),
-                            glm::vec3(0.5f, 1.0, 0.0f));
-
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-        glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
 
 		processInput(window);
 		glClearColor(0.5f, 0.4f, 0.7f, 1.0f);
@@ -170,16 +172,36 @@ int main(){
 
         //glUniform4f(glGetUniformLocation(shaderProgram, "ourColor"), 
         //            0.1f, sin(glfwGetTime()/2.0f+0.5f), 0.3f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "model"),
-                           1, GL_FALSE, glm::value_ptr(model));
+       
+
+        glm::mat4 view = glm::mat4(1.0f);
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+        glm::mat4 projection;
+        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "view"),
                            1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "projection"),
                            1, GL_FALSE, glm::value_ptr(projection));
+
+        glBindVertexArray(VAO);
+        for(uint i = 0; i<10; ++i){
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            model = glm::rotate(model, (float)glfwGetTime()*glm::radians(-50.0f),
+                                glm::vec3(0.5f, 1.0, 0.0f));
+ 
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "model"),
+                           1, GL_FALSE, glm::value_ptr(model));
+        
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+
         
         
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
