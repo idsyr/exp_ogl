@@ -5,6 +5,7 @@
 #include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm.hpp> 
 using std::cout; using std::endl; using std::string;
 extern int success; extern char infoLog[512];
 struct Shader{ 
@@ -57,6 +58,8 @@ struct Shader{
     glUniform1i(glGetUniformLocation(shaderProgram, name.c_str()), value);}
     void setFloat(const std::string &name, float value) const{
     glUniform1f(glGetUniformLocation(shaderProgram, name.c_str()), value);}
+    void setVec3f(const std::string &name,  float x, float y, float z) const{
+    glUniform3f(glGetUniformLocation(shaderProgram, name.c_str()), x, y, z); }
 };
 
 

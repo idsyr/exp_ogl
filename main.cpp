@@ -160,6 +160,12 @@ glm::vec3 cubePositions[] = {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    uint lightVAO; glGenVertexArrays(1, &lightVAO); glBindVertexArray(lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     uint texture1; glGenTextures(1, &texture1); glBindTexture(GL_TEXTURE_2D, texture1);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -198,6 +204,8 @@ glm::vec3 cubePositions[] = {
     shaderProgram.setInt("texture1", 0);
     shaderProgram.setInt("texture2", 1);
 
+    Shader shaderProgramL("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/flshader");
+
     glEnable(GL_DEPTH_TEST);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
@@ -217,6 +225,9 @@ glm::vec3 cubePositions[] = {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         
+        shaderProgram.use();
+        shaderProgram.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
+        shaderProgram.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
         glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         
         glm::mat4 projection;
@@ -226,7 +237,6 @@ glm::vec3 cubePositions[] = {
                            1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram.shaderProgram, "projection"),
                            1, GL_FALSE, glm::value_ptr(projection));
-
         glBindVertexArray(VAO);
         for(uint i = 0; i<10; ++i){
             glm::mat4 model = glm::mat4(1.0f);
@@ -239,7 +249,22 @@ glm::vec3 cubePositions[] = {
         
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        shaderProgramL.use();
         
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgramL.shaderProgram, "view"),
+                           1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgramL.shaderProgram, "projection"),
+                           1, GL_FALSE, glm::value_ptr(projection));
+        
+       glm::mat4 model = glm::mat4(1.0f);
+       model = glm::translate(model, glm::vec3(1.2f, 1.0f, 2.0f));
+       model = glm::scale(model, glm::vec3(0.2f));
+       
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgramL.shaderProgram, "model"),
+                           1, GL_FALSE, glm::value_ptr(model));
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 	}
