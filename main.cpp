@@ -13,9 +13,28 @@
 #include "texture.h"
 using std::cout; using std::endl; using std::sin;
 int success; char infoLog[512];
+uint scr_w = 1360, scr_h = 768;
+float delta_time = 0.0f, lastFrame = 0.0f;
+float lastX = 0, lastY = 0;
 
-uint scr_w = 1360;
-uint scr_h = 768;
+Camera cam1(scr_w, scr_h);
+void processInput(GLFWwindow* window){
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cam1.action_w(delta_time);
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam1.action_s(delta_time);
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) cam1.action_a(delta_time);
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) cam1.action_d(delta_time); 
+
+	if(glfwGetKey(window, GLFW_KEY_ESCAPE)==GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);}
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+    cam1.action_on_scroll(yoffset);}
+void mouse_callback(GLFWwindow* window, double xpos, double ypos){
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos; 
+    lastY = ypos;
+    cam1.action_on_mouse(xoffset, yoffset);}
+void framebuffer_size_callback(GLFWwindow* window, int w, int h){glViewport(0,0,w,h);}
 
 int main(){
 	glfwInit();
@@ -47,8 +66,8 @@ int main(){
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    Texture texture1("/home/ids/pro/exp/ras0.png");
-    Texture texture2("/homr/ids/pto/exp/t9.png"); 
+    Texture texture1("/home/ids/pro/exp/rsr/ras0.jpg");
+    Texture texture2("/home/ids/pro/exp/rsr/t9.png"); 
 
     Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/fshader");
     shaderProgram.setInt("texture1.ID", 0); shaderProgram.setInt("texture2.ID", 1);
@@ -63,7 +82,7 @@ int main(){
 
     while(!glfwWindowShouldClose(window)){
         float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
+        delta_time = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         processInput(window);
@@ -73,13 +92,11 @@ int main(){
         glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture1.ID);
         glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, texture2.ID);
         
+        glm::mat4 projection = glm::perspective(glm::radians(cam1.get_fov()), (float)scr_w/(float)scr_h, 0.1f, 100.0f);
+        glm::mat4 view = cam1.get_view();
         shaderProgram.use();
         shaderProgram.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
         shaderProgram.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
-        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        
-        glm::mat4 projection;
-        projection = glm::perspective(glm::radians(fov), (float)scr_w / (float)scr_h, 0.1f, 100.0f);
         shaderProgram.setMat4f(view);
         shaderProgram.setMat4f(projection);
         glBindVertexArray(VAO);
