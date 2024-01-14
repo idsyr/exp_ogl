@@ -95,11 +95,28 @@ int main(){
         glm::mat4 projection = glm::perspective(glm::radians(cam1.get_fov()), (float)scr_w/(float)scr_h, 0.1f, 100.0f);
         glm::mat4 view = cam1.get_view();
         shaderProgram.use();
-        shaderProgram.setVec3f("objectColor", 1.0f, 0.5f, 0.31f);
+        shaderProgram.setVec3f("objectColor", 1.0f, 0.9f, 0.9f);
         shaderProgram.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
         glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
         shaderProgram.setVec3f("lightPos", 1.2f, 1.0f, 2.0f);
         shaderProgram.setVec3f("viewPos", cam1.position);
+
+        shaderProgram.setVec3f("material.ambient", 1.0f, 0.5f, 0.31f);
+        shaderProgram.setVec3f("material.diffuse", 1.0f, 0.5f, 0.31f);
+        shaderProgram.setVec3f("material.specular", 0.5f, 0.5f, 0.5f);
+        shaderProgram.setFloat("material.shininess", 32.0f);
+        glm::vec3 lightColor;
+        lightColor.x = sin(glfwGetTime()*2.0f);
+        lightColor.y = sin(glfwGetTime()*0.7f);
+        lightColor.z = sin(glfwGetTime()*1.3f);
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+        
+        
+        shaderProgram.setVec3f("light.ambient", ambientColor);
+        shaderProgram.setVec3f("light.diffuse", diffuseColor);
+        shaderProgram.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
+ 
         shaderProgram.setMat4f(view);
         shaderProgram.setMat4f(projection);
         glBindVertexArray(VAO);
