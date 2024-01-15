@@ -55,22 +55,23 @@ int main(){
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     uint VAO; glGenVertexArrays(1, &VAO); glBindVertexArray(VAO); 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
-
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
     uint lightVAO; glGenVertexArrays(1, &lightVAO); glBindVertexArray(lightVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(1);
 
-    Texture texture1("/home/ids/pro/exp/rsr/ras0.jpg");
-    Texture texture2("/home/ids/pro/exp/rsr/t9.png"); 
+    //Texture texture1("/home/ids/pro/exp/rsr/ras0.jpg");
+    //Texture texture2("/home/ids/pro/exp/rsr/t9.png");
+    Texture diffuseMap("/home/ids/pro/exp/cont2.jpg");
+    Texture specularMap("/home/ids/pro/exp/c2s.png");
 
     Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/fshader");
-    shaderProgram.setInt("texture1.ID", 0); shaderProgram.setInt("texture2.ID", 1);
+    
 
     Shader shaderProgramL("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/flshader");
 
@@ -89,34 +90,28 @@ int main(){
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);//(0.5f, 0.4f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture1.ID);
-        glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, texture2.ID);
+        //glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture1.ID);
+        //glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D, texture2.ID);
         
         glm::mat4 projection = glm::perspective(glm::radians(cam1.get_fov()), (float)scr_w/(float)scr_h, 0.1f, 100.0f);
         glm::mat4 view = cam1.get_view();
         shaderProgram.use();
-        shaderProgram.setVec3f("objectColor", 1.0f, 0.9f, 0.9f);
-        shaderProgram.setVec3f("lightColor", 1.0f, 1.0f, 1.0f);
-        glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-        shaderProgram.setVec3f("lightPos", 1.2f, 1.0f, 2.0f);
+        shaderProgram.setVec3f("light.position", 1.2f, 1.0f, 2.0f);
         shaderProgram.setVec3f("viewPos", cam1.position);
+        shaderProgram.setInt("material.diffuse", 0); 
+        shaderProgram.setInt("material.specular", 1);
 
-        shaderProgram.setVec3f("material.ambient", 1.0f, 0.5f, 0.31f);
-        shaderProgram.setVec3f("material.diffuse", 1.0f, 0.5f, 0.31f);
-        shaderProgram.setVec3f("material.specular", 0.5f, 0.5f, 0.5f);
-        shaderProgram.setFloat("material.shininess", 32.0f);
-        glm::vec3 lightColor;
-        lightColor.x = sin(glfwGetTime()*2.0f);
-        lightColor.y = sin(glfwGetTime()*0.7f);
-        lightColor.z = sin(glfwGetTime()*1.3f);
-        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-        glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
-        
-        
-        shaderProgram.setVec3f("light.ambient", ambientColor);
-        shaderProgram.setVec3f("light.diffuse", diffuseColor);
-        shaderProgram.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap.ID);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap.ID);      
  
+        shaderProgram.setFloat("material.shininess", 256.0f);
+        shaderProgram.setVec3f("light.ambient", 0.2f, 0.2f, 0.2f);
+        shaderProgram.setVec3f("light.diffuse", 0.5f, 0.5f, 0.5f);
+        shaderProgram.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
+
+        
         shaderProgram.setMat4f(view);
         shaderProgram.setMat4f(projection);
         glBindVertexArray(VAO);
