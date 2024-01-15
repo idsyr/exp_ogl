@@ -70,10 +70,10 @@ int main(){
     Texture diffuseMap("/home/ids/pro/exp/cont2.jpg");
     Texture specularMap("/home/ids/pro/exp/c2s.png");
 
-    Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/fshader");
+    Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/smooth_spotlight_fshader");
     
 
-    Shader shaderProgramL("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/flshader");
+    Shader shaderProgramL("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/light_fshader");
 
     glEnable(GL_DEPTH_TEST);
 
@@ -96,8 +96,13 @@ int main(){
         glm::mat4 projection = glm::perspective(glm::radians(cam1.get_fov()), (float)scr_w/(float)scr_h, 0.1f, 100.0f);
         glm::mat4 view = cam1.get_view();
         shaderProgram.use();
-        shaderProgram.setVec3f("light.position", 1.2f, 1.0f, 2.0f);
-        shaderProgram.setVec3f("viewPos", cam1.position);
+        //shaderProgram.setVec3f("light.position", 1.2f, 1.0f, 2.0f);
+        //shaderProgram.setVec3f("light.direction", -0.2, -1.0, -3.0);
+        shaderProgram.setVec3f("light.position", cam1.position);
+        shaderProgram.setVec3f("light.direction", cam1.front);
+        shaderProgram.setFloat("light.cutoff", (float)glm::cos(glm::radians(12.5f)));
+        shaderProgram.setFloat("light.outercutoff", (float)glm::cos(glm::radians(17.5f)));
+        shaderProgram.setVec3f("viewPos", cam1.front);
         shaderProgram.setInt("material.diffuse", 0); 
         shaderProgram.setInt("material.specular", 1);
 
@@ -110,6 +115,9 @@ int main(){
         shaderProgram.setVec3f("light.ambient", 0.2f, 0.2f, 0.2f);
         shaderProgram.setVec3f("light.diffuse", 0.5f, 0.5f, 0.5f);
         shaderProgram.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram.setFloat("light.constant", 1.0f);
+        shaderProgram.setFloat("light.linear", 0.09f);
+        shaderProgram.setFloat("light.quadratic", 0.032f);
 
         
         shaderProgram.setMat4f(view);
