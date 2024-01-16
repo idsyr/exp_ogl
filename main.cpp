@@ -70,8 +70,7 @@ int main(){
     Texture diffuseMap("/home/ids/pro/exp/cont2.jpg");
     Texture specularMap("/home/ids/pro/exp/c2s.png");
 
-    Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/smooth_spotlight_fshader");
-    
+    Shader shaderProgram("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/multiple_lights_fshader");
 
     Shader shaderProgramL("/home/ids/pro/exp/vshader", "/home/ids/pro/exp/light_fshader");
 
@@ -96,28 +95,79 @@ int main(){
         glm::mat4 projection = glm::perspective(glm::radians(cam1.get_fov()), (float)scr_w/(float)scr_h, 0.1f, 100.0f);
         glm::mat4 view = cam1.get_view();
         shaderProgram.use();
-        //shaderProgram.setVec3f("light.position", 1.2f, 1.0f, 2.0f);
-        //shaderProgram.setVec3f("light.direction", -0.2, -1.0, -3.0);
-        shaderProgram.setVec3f("light.position", cam1.position);
-        shaderProgram.setVec3f("light.direction", cam1.front);
-        shaderProgram.setFloat("light.cutoff", (float)glm::cos(glm::radians(12.5f)));
-        shaderProgram.setFloat("light.outercutoff", (float)glm::cos(glm::radians(17.5f)));
-        shaderProgram.setVec3f("viewPos", cam1.front);
-        shaderProgram.setInt("material.diffuse", 0); 
+        shaderProgram.setInt("material.diffuse", 0);
         shaderProgram.setInt("material.specular", 1);
-
+        shaderProgram.setFloat("material.shininess", 64.0f);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap.ID);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap.ID);      
+        glBindTexture(GL_TEXTURE_2D, specularMap.ID);       
+
+        shaderProgram.setVec3f("dir_light.direction", -0.2f, -1.0f, -0.3f);
+        shaderProgram.setVec3f("dir_light.ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram.setVec3f("dir_light.diffuse", 0.09f, 0.44f, 0.4f);
+        shaderProgram.setVec3f("dir_light.specular", 0.5f, 0.5f, 0.5f);
+        
+        shaderProgram.setVec3f("pnt_light[0].position", pointLightPositions[0]);
+        shaderProgram.setVec3f("pnt_light[0].ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram.setVec3f("pnt_light[0].diffuse", 0.8f, 0.8f, 0.8f);
+        shaderProgram.setVec3f("pnt_light[0].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram.setFloat("pnt_light[0].constant", 1.0f);
+        shaderProgram.setFloat("pnt_light[0].linear", 0.09f);
+        shaderProgram.setFloat("pnt_light[0].quadratic", 0.032f);
+        
+        shaderProgram.setVec3f("pnt_light[1].position", pointLightPositions[1]);
+        shaderProgram.setVec3f("pnt_light[1].ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram.setVec3f("pnt_light[1].diffuse", 0.8f, 0.8f, 0.8f);
+        shaderProgram.setVec3f("pnt_light[1].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram.setFloat("pnt_light[1].constant", 1.0f);
+        shaderProgram.setFloat("pnt_light[1].linear", 0.09f);
+        shaderProgram.setFloat("pnt_light[1].quadratic", 0.032f);
+        
+        shaderProgram.setVec3f("pnt_light[2].position", pointLightPositions[2]);
+        shaderProgram.setVec3f("pnt_light[2].ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram.setVec3f("pnt_light[2].diffuse", 0.8f, 0.8f, 0.8f);
+        shaderProgram.setVec3f("pnt_light[2].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram.setFloat("pnt_light[2].constant", 1.0f);
+        shaderProgram.setFloat("pnt_light[2].linear", 0.09f);
+        shaderProgram.setFloat("pnt_light[2].quadratic", 0.032f);    
+    
+        shaderProgram.setVec3f("pnt_light[3].position", pointLightPositions[3]);
+        shaderProgram.setVec3f("pnt_light[3].ambient", 0.05f, 0.05f, 0.05f);
+        shaderProgram.setVec3f("pnt_light[3].diffuse", 0.8f, 0.8f, 0.8f);
+        shaderProgram.setVec3f("pnt_light[3].specular", 1.0f, 1.0f, 1.0f);
+        shaderProgram.setFloat("pnt_light[3].constant", 1.0f);
+        shaderProgram.setFloat("pnt_light[3].linear", 0.09f);
+        shaderProgram.setFloat("pnt_light[3].quadratic", 0.032f);        
  
-        shaderProgram.setFloat("material.shininess", 256.0f);
-        shaderProgram.setVec3f("light.ambient", 0.2f, 0.2f, 0.2f);
-        shaderProgram.setVec3f("light.diffuse", 0.5f, 0.5f, 0.5f);
-        shaderProgram.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
-        shaderProgram.setFloat("light.constant", 1.0f);
-        shaderProgram.setFloat("light.linear", 0.09f);
-        shaderProgram.setFloat("light.quadratic", 0.032f);
+        shaderProgram.setVec3f("spt_light.position", cam1.position);
+        shaderProgram.setVec3f("spt_light.direction", cam1.front);
+        shaderProgram.setVec3f("spt_light.ambient", 0.0f, 0.0f, 0.0f);
+        shaderProgram.setVec3f("spt_light.specular", 1.0f, 10.0f, 1.0f);//check
+        shaderProgram.setVec3f("spt_light.diffuse", 1.0f, 0.5f, 0.0f);
+        shaderProgram.setFloat("spt_light.constant", 1.0f);
+        shaderProgram.setFloat("spt_light.linear", 0.09f);
+        shaderProgram.setFloat("spt_light.qudratic", 0.032f);
+        shaderProgram.setFloat("spt_light.cutoff", glm::cos(glm::radians(12.5f)));
+        shaderProgram.setFloat("spt_light.outer_cutoff", glm::cos(glm::radians(17.5f)));
+        //shaderProgram.setVec3f("light.position", 1.2f, 1.0f, 2.0f);
+        //shaderProgram.setVec3f("light.direction", -0.2, -1.0, -3.0);
+        //shaderProgram.setVec3f("light.position", cam1.position);
+        //shaderProgram.setVec3f("light.direction", cam1.front);
+        //shaderProgram.setFloat("light.cutoff", (float)glm::cos(glm::radians(12.5f)));
+        //shaderProgram.setFloat("light.outercutoff", (float)glm::cos(glm::radians(17.5f)));
+        //shaderProgram.setVec3f("viewPos", cam1.front);
+        //shaderProgram.setInt("material.diffuse", 0); 
+        //shaderProgram.setInt("material.specular", 1);
+
+
+        //shaderProgram.setFloat("material.shininess", 256.0f);
+        //shaderProgram.setVec3f("light.ambient", 0.2f, 0.2f, 0.2f);
+        //shaderProgram.setVec3f("light.diffuse", 0.5f, 0.5f, 0.5f);
+        //shaderProgram.setVec3f("light.specular", 1.0f, 1.0f, 1.0f);
+        //shaderProgram.setFloat("light.constant", 1.0f);
+        //shaderProgram.setFloat("light.linear", 0.09f);
+        //shaderProgram.setFloat("light.quadratic", 0.032f);
 
         
         shaderProgram.setMat4f(view);
@@ -134,14 +184,14 @@ int main(){
         shaderProgramL.use();
         shaderProgramL.setMat4f(view);
         shaderProgramL.setMat4f(projection);
-        
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(1.2f, 1.0f, 2.0f));
-        model = glm::scale(model, glm::vec3(0.2f));
-        shaderProgram.setMat4f(model);
-
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(int i = 0; i<4; ++i){
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f));
+            shaderProgram.setMat4f(model);
+            glBindVertexArray(lightVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
